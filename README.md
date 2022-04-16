@@ -45,7 +45,11 @@ sections:
 The plugin comes with a default query that shows the most recent changes made by the currently logged in user. But you can define any other query you like.
 
 **Default Query**
-`site.index(true).sortBy('modified', 'desc').onlyModifiedByUser`
+```
+site.index(true).sortBy('modified', 'desc').onlyModifiedByUser
+```
+
+> `onlyModifiedByUser` is a pagesmethod added by this plugin that filters the pages collection to only those pages that where modified by the currently logged in user. The plugin uses hooks to track what pages each user did edit.
 
 **Example 1**
 ```yaml
@@ -78,7 +82,7 @@ return [
 
 ## Known Limitations
 
-- You can not set multiple `info` settings. All instances of the `recentlymodified` section share the same.
+- You can not set multiple `text`/`link`/`info` settings. All instances of the `recentlymodified` section share the same.
 - The `limit` setting is always applied. If you want some of your instances to have a smaller number of items then call `limit` inside your custom query.
 
 ## Settings
@@ -86,7 +90,9 @@ return [
 | bnomei.recently-modified. | Default                | Description                             |            
 |---------------------------|------------------------|-----------------------------------------|
 | query                     | `...`                  | see above                               |
-| ino                       | `function($page){...}` | callback to return the info             |
+| link                      | `function($page){...}` | callback to return the link             |
+| text                      | `function($page){...}` | callback to return the text             |
+| info                      | `function($page){...}` | callback to return the info             |
 | format                    | `Y/m/d H:i:s`          | date format string                      |
 | hooks                     | `true`                 | use hooks to track users modified pages |
 | limit                     | `7`                    | limit list and cache items              |

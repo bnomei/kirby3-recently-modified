@@ -27,3 +27,9 @@ export default {
   }
 };
 </script>
+
+<style>
+  .k-links-section .k-item-info {
+    font-variant-numeric: tabular-nums;
+  }
+</style>

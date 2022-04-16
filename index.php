@@ -7,6 +7,12 @@ Kirby::plugin('bnomei/recently-modified', [
         'info' => function (\Kirby\Cms\Page $page) {
             return $page->modified(option('bnomei.recently-modified.format'));
         },
+        'link' => function (\Kirby\Cms\Page $page) {
+            return $page->panelUrl();
+        },
+        'text' => function (\Kirby\Cms\Page $page) {
+            return $page->title()->value();
+        },
         'hooks' => true,
         'limit' => 7, // track only that many
         'expire' => 1, // minutes
@@ -24,8 +30,8 @@ Kirby::plugin('bnomei/recently-modified', [
                     $pages = site()->recentlyModified($query, $parentId);
                     return array_values($pages->toArray(function ($page) {
                         return [
-                            'link' => $page->panelUrl(),
-                            'text' => $page->title()->value(),
+                            'link' => option('bnomei.recently-modified.link')($page),
+                            'text' => option('bnomei.recently-modified.text')($page),
                             'info' => option('bnomei.recently-modified.info')($page),
                         ];
                     }));
