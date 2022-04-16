@@ -50,16 +50,16 @@ The plugin comes with a default query that shows the most recent changes made by
 **Example 1**
 ```yaml
 sections:
-  recmodByUser:
+  recentarticles:
     type: recentlymodified
-    headline: Your Recently Modified Pages
+    headline: Recently Modified Articles
     query: site.find('articles').children.listed.sortBy('modified', 'desc')
 ```
 
 **Example 2**
 ```yaml
 sections:
-  recmodByUser:
+  mycollection:
     type: recentlymodified
     headline: My Collection
     query: kirby.collection('my-collection')
