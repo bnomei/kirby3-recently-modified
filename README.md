@@ -26,6 +26,8 @@ Kirby 3 Plugin to view recently modified pages
 - `git submodule add https://github.com/bnomei/kirby3-recently-modified.git site/plugins/kirby3-recently-modified` or
 - `composer require bnomei/kirby3-recently-modified`
 
+![recently-modified](https://raw.githubusercontent.com/bnomei/kirby3-recently-modified/master/screenshot.png)
+
 ## Usage
 
 Add the section to your blueprint.
