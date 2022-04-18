@@ -64,9 +64,9 @@ Kirby::plugin('bnomei/recently-modified', [
 
     ],
     'pageMethods' => [
-        'trackModifiedByUser' => function (bool $add = true) {
+        'trackModifiedByUser' => function (bool $add = true): bool {
             if (!kirby()->user() || option('bnomei.recently-modified.hooks') !== true) {
-                return;
+                return false;
             }
             $cacheKey = kirby()->user()->id();
 
@@ -79,8 +79,23 @@ Kirby::plugin('bnomei/recently-modified', [
             }
             arsort($list);
             $list = array_slice($list, 0, intval(option('bnomei.recently-modified.limit')));
-            file_put_contents(__DIR__ . '/' . $cacheKey . '.txt', print_r($list, true));
             kirby()->cache('bnomei.recently-modified')->set($cacheKey, $list);
+            return true;
+        },
+        'findRecentlyModifiedByUser' => function(): ?\Kirby\Cms\User {
+            $modifier = null;
+            $modified = null;
+            foreach(kirby()->users() as $user) {
+                $list = kirby()->cache('bnomei.recently-modified')->get($user->id(), []);
+                if(array_key_exists($this->id(), $list)) {
+                    $modifiedTS = $list[$this->id()];
+                    if (!$modified || $modified < $modifiedTS) {
+                        $modifier = $user;
+                        $modified = $modifiedTS;
+                    }
+                }
+            }
+            return $modifier;
         },
     ],
     'pagesMethods' => [
@@ -91,7 +106,7 @@ Kirby::plugin('bnomei/recently-modified', [
             return $this->filterBy(function ($page) use ($list) {
                 return array_key_exists($page->id(), $list);
             });
-        }
+        },
     ],
     'hooks' => [
         'page.create:after' => function (\Kirby\Cms\Page $page) {
