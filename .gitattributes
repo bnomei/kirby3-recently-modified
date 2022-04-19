@@ -8,3 +8,4 @@
 /.travis.yml        export-ignore
 /phpunit.xml        export-ignore
 screenshot.png      export-ignore
+screenshot.gif      export-ignore

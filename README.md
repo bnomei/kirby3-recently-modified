@@ -28,25 +28,41 @@ Kirby 3 Plugin to view recently modified pages by current User
 
 ## Screenshot
 
+### Section
 ![recently-modified](https://raw.githubusercontent.com/bnomei/kirby3-recently-modified/master/screenshot.png)
+
+### Field
+![recently-modified](https://raw.githubusercontent.com/bnomei/kirby3-recently-modified/master/screenshot.gif)
 
 ## Usage
 
-Add the section to your blueprint.
+Add the section to your site or page blueprint.
+
+**site/blueprints/site.yml**
+```yaml
+sections:
+  listPagesModifiedByUser:
+    type: recentlymodified
+    headline: Your Recently Modified Pages
+    # query
+```
+
+Optionally you can add the field to page blueprints to show the time and user that modified given page most recently.
 
 **site/blueprints/default.yml**
 ```yaml
-sections:
-  recmodByUser:
+fields:
+  showWhichUserModifiedPage:
     type: recentlymodified
-    headline: Your Recently Modified Pages
+    label: Recently Modified By
+    # interval: 60
 ```
 
 > ⚠️ This plugin has by default a 1 minute cache.
 
-### Query
+### Query for the Section (not Field)
 
-The plugin comes with a default query that shows the most recent changes made by the currently logged in user. But you can define any other query you like.
+The plugins section comes with a default query that shows the most recent changes made by the currently logged in user. But you can define any other query you like.
 
 **Default Query**
 ```
