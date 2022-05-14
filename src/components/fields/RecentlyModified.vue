@@ -57,7 +57,7 @@ export default {
         id: contentId.split('?')[0],
       })
           .then(response => {
-            if (this.auser != response.auser) {
+            if (this.auser !== undefined && this.auser !== response.auser) {
               this.hasUserChange = true
             }
             this.auser = response.auser
