@@ -91,7 +91,8 @@ Kirby::plugin('bnomei/recently-modified', [
                 unset($list[$listKey]);
             }
             arsort($list);
-            $list = array_slice($list, 0, intval(option('bnomei.recently-modified.limit')));
+            // NOTE: do not limit list or field will not work beyond the limit
+            // $list = array_slice($list, 0, intval(option('bnomei.recently-modified.limit')));
             kirby()->cache('bnomei.recently-modified')->set($cacheKey, $list);
             return true;
         },
