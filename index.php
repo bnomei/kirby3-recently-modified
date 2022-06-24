@@ -146,7 +146,7 @@ Kirby::plugin('bnomei/recently-modified', [
                 'action' => function () {
                     $id = urldecode(get('id'));
                     $id = explode('?', ltrim(str_replace(['/pages/', '/_drafts/', '+', ' '], ['/', '/', '/', '/'], $id), '/'))[0];
-                    if ($page = page($id)) {
+                    if ($page = kirby()->page($id)) {
                         $user = $page->findRecentlyModifiedByUser();
                         $username = $user ? (string)$user->nameOrEmail() : '';
                         return [
