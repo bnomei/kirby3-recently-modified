@@ -3,7 +3,7 @@
   "description": "Kirby 3 Section to display recently modified content pages",
   "license": "MIT",
   "type": "kirby-plugin",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "authors": [
     {
       "name": "Bruno Meilick",

@@ -8,7 +8,7 @@ Kirby::plugin('bnomei/recently-modified', [
             return $page->modified(option('bnomei.recently-modified.format'));
         },
         'link' => function (\Kirby\Cms\Page $page) {
-            return $page->panel()->url()();
+            return $page->panel()->url();
         },
         'text' => function (\Kirby\Cms\Page $page) {
             return $page->title()->value();
