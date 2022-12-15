@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'bnomei/kirby3-recently-modified',
-        'pretty_version' => '1.2.8',
-        'version' => '1.2.8.0',
+        'pretty_version' => '1.2.9',
+        'version' => '1.2.9.0',
         'reference' => NULL,
         'type' => 'kirby-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -11,8 +11,8 @@
     ),
     'versions' => array(
         'bnomei/kirby3-recently-modified' => array(
-            'pretty_version' => '1.2.8',
-            'version' => '1.2.8.0',
+            'pretty_version' => '1.2.9',
+            'version' => '1.2.9.0',
             'reference' => NULL,
             'type' => 'kirby-plugin',
             'install_path' => __DIR__ . '/../../',
