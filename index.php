@@ -66,7 +66,7 @@ Kirby::plugin('bnomei/recently-modified', [
                     'pages' => kirby()->site()->pages(),
                     'user' => $user,
                 ]);
-                $keys = $collection->result()
+                $keys = $collection
                     ->limit(intval(option('bnomei.recently-modified.limit')))
                     ->toArray(fn($page) => $page->id());
                 kirby()->cache('bnomei.recently-modified')
