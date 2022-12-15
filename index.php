@@ -59,7 +59,7 @@ Kirby::plugin('bnomei/recently-modified', [
             $keys = kirby()->cache('bnomei.recently-modified')->get($cacheKey);
             if (!$keys) {
                 $page = !empty($parentId) ? page($parentId) : null;
-                $collection = new \Kirby\Query\Query::factory($query)->resolve([
+                $collection = \Kirby\Query\Query::factory($query)->resolve([
                     'kirby' => kirby(),
                     'site' => kirby()->site(),
                     'page' => $page,
