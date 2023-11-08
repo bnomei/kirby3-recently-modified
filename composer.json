@@ -3,7 +3,7 @@
   "description": "Kirby 3 Section to display recently modified content pages",
   "license": "MIT",
   "type": "kirby-plugin",
-  "version": "1.2.10",
+  "version": "4.0.0",
   "authors": [
     {
       "name": "Bruno Meilick",
@@ -11,9 +11,9 @@
     }
   ],
   "keywords": [
-    "kirby3",
-    "kirby3-cms",
-    "kirby3-plugin",
+    "kirby",
+    "kirby-cms",
+    "kirby-plugin",
     "modified",
     "user",
     "page",
@@ -21,7 +21,9 @@
     "collection",
     "list",
     "section",
-    "widget"
+    "widget",
+    "recently",
+    "changes"
   ],
   "require": {
     "getkirby/composer-installer": "^1.2"

@@ -1,5 +1,5 @@
 <template>
-  <section class="k-links-section">
+  <section class="k-section k-links-section">
     <header class="k-section-header">
       <h2 class="k-headline">{{ headline }}</h2>
     </header>
