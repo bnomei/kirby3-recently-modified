@@ -74,7 +74,44 @@ Kirby::plugin('bnomei/recently-modified', [
             }
             return pages($keys ?? []);
         },
+        'modifiedTimestamp' => function() {
+            return filemtime(site()->storage()->contentFiles(site()->storage()->defaultVersion())[0]);
+        },
+        'trackModifiedByUser' => function (bool $add = true): bool {
+            if (!kirby()->user() || option('bnomei.recently-modified.hooks') !== true) {
+                return false;
+            }
+            $cacheKey = kirby()->user()->id();
 
+            $listKey = $this->id();
+            $list = kirby()->cache('bnomei.recently-modified')->get($cacheKey, []);
+            if ($add) {
+                $list[$listKey] = $this->modifiedTimestamp();
+            } elseif (array_key_exists($listKey, $list)) {
+                unset($list[$listKey]);
+            }
+            arsort($list);
+            // NOTE: do not limit list or field will not work beyond the limit
+            // $list = array_slice($list, 0, intval(option('bnomei.recently-modified.limit')));
+            kirby()->cache('bnomei.recently-modified')->set($cacheKey, $list);
+            return true;
+        },
+        'findRecentlyModifiedByUser' => function (): ?\Kirby\Cms\User {
+            $modifier = null;
+            $modified = null;
+            $id = 'site';
+            foreach (kirby()->users() as $user) {
+                $list = kirby()->cache('bnomei.recently-modified')->get($user->id(), []);
+                if (array_key_exists($id, $list)) {
+                    $modifiedTS = $list[$id];
+                    if (!$modified || $modified < $modifiedTS) {
+                        $modifier = $user;
+                        $modified = $modifiedTS;
+                    }
+                }
+            }
+            return $modifier;
+        },
     ],
     'pageMethods' => [
         'trackModifiedByUser' => function (bool $add = true): bool {
@@ -99,10 +136,11 @@ Kirby::plugin('bnomei/recently-modified', [
         'findRecentlyModifiedByUser' => function (): ?\Kirby\Cms\User {
             $modifier = null;
             $modified = null;
+            $id = $this->id();
             foreach (kirby()->users() as $user) {
                 $list = kirby()->cache('bnomei.recently-modified')->get($user->id(), []);
-                if (array_key_exists($this->id(), $list)) {
-                    $modifiedTS = $list[$this->id()];
+                if (array_key_exists($id, $list)) {
+                    $modifiedTS = $list[$id];
                     if (!$modified || $modified < $modifiedTS) {
                         $modifier = $user;
                         $modified = $modifiedTS;
@@ -115,7 +153,7 @@ Kirby::plugin('bnomei/recently-modified', [
     'pagesMethods' => [
         'onlyModifiedByUser' => function (?\Kirby\Cms\User $user = null) {
             $user = $user ?? kirby()->user();
-            $cacheKey = kirby()->user()->id();
+            $cacheKey = $user->id();
             $list = kirby()->cache('bnomei.recently-modified')->get($cacheKey, []);
             return $this->filterBy(function ($page) use ($list) {
                 return array_key_exists($page->id(), $list);
@@ -138,6 +176,9 @@ Kirby::plugin('bnomei/recently-modified', [
         'page.delete:before' => function (\Kirby\Cms\Page $page, bool $force) {
             $page->trackModifiedByUser(false);
         },
+        'site.update:after' => function (\Kirby\Cms\Site $newSite, \Kirby\Cms\Site $oldSite) {
+            $newSite->trackModifiedByUser();
+        },
     ],
     'api' => [
         'routes' => [
@@ -146,6 +187,14 @@ Kirby::plugin('bnomei/recently-modified', [
                 'action' => function () {
                     $id = urldecode(get('id'));
                     $id = explode('?', ltrim(str_replace(['/pages/', '/_drafts/', '+', ' '], ['/', '/', '/', '/'], $id), '/'))[0];
+                    if ($id === 'site') {
+                        $user = site()->findRecentlyModifiedByUser();
+                        $username = $user ? (string)$user->nameOrEmail() : '';
+                        return [
+                            'auser' => $username,
+                            'datetime' => date(option('bnomei.recently-modified.format'), site()->modifiedTimestamp()),
+                        ];
+                    }
                     if ($page = kirby()->page($id)) {
                         $user = $page->findRecentlyModifiedByUser();
                         $username = $user ? (string)$user->nameOrEmail() : '';

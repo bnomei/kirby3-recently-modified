@@ -36,7 +36,7 @@ Kirby 3 Plugin to view recently modified pages by current User
 
 ## Usage
 
-Add the section to your site or page blueprint.
+Add the section to your site or page blueprint to display a list of the most recently modified pages by the currently logged in user. The sections is not able to list the site itself since the section depends on a collection of pages for the query.
 
 **site/blueprints/site.yml**
 ```yaml
@@ -47,9 +47,9 @@ sections:
     # query
 ```
 
-Optionally you can add the field to page blueprints to show the time and user that modified given page most recently.
+Optionally you can add the field to the site or any page blueprint to show the time and user that modified given content most recently. In contrast to the section the field is able to show most recent modified information for the site (`content/site.txt`).
 
-**site/blueprints/default.yml**
+**site/blueprints/pages/default.yml**
 ```yaml
 fields:
   showWhichUserModifiedPage:
@@ -90,7 +90,7 @@ sections:
 ```
 ```php
 return [
-    'bnomei.recently-modified.limit' => 25,
+    'bnomei.recently-modified.limit' => 25, // default: 7
     'bnomei.recently-modified.info' => function ($page) {
         return $page->id();
     },
