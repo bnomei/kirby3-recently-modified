@@ -1,10 +1,10 @@
-# Kirby 3 Recently Modified
+# Kirby Recently Modified
 
 ![Release](https://flat.badgen.net/packagist/v/bnomei/kirby3-recently-modified?color=ae81ff)
 ![Downloads](https://flat.badgen.net/packagist/dt/bnomei/kirby3-recently-modified?color=272822)
 [![Twitter](https://flat.badgen.net/badge/twitter/bnomei?color=66d9ef)](https://twitter.com/bnomei)
 
-Kirby 3 Plugin to view recently modified pages by current User
+Kirby Plugin to view recently modified pages by current User
 
 ## Commercial Usage
 

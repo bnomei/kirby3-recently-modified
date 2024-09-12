@@ -1,6 +1,6 @@
 {
   "name": "bnomei/kirby3-recently-modified",
-  "description": "Kirby 3 Section to display recently modified content pages",
+  "description": "Kirby Section to display recently modified content pages",
   "license": "MIT",
   "type": "kirby-plugin",
   "version": "4.2.0",
