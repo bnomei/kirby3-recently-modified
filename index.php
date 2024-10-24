@@ -6,9 +6,19 @@ use Kirby\Toolkit\Str;
 App::plugin('bnomei/recently-modified', [
     'options' => [
         'query' => "site.index(true).sortBy('modified', 'desc').onlyModifiedByUser",
-        'format' => null,
+        'format' => function($datetime): string {
+            $handler = kirby()->option('date.handler') ?? 'date';
+            $formats = [
+                'date' => 'Y/m/d H:i:s',
+                'intl' => 'yyyy/MM/dd HH:mm:ss', // https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax
+                'strftime' => '%Y/%m/%d %H:%M:%S'
+            ];
+            $format = $formats[$handler] ?? $formats['date'];
+
+            return Str::date($datetime, $format, $handler);
+        },
         'info' => function (\Kirby\Cms\Page $page) {
-            return $page->modified(option('bnomei.recently-modified.format'));
+            return option('bnomei.recently-modified.format')($page->modified());
         },
         'link' => function (\Kirby\Cms\Page $page) {
             return $page->panel()->url();
@@ -29,7 +39,7 @@ App::plugin('bnomei/recently-modified', [
                     return $user ? (string)$user->nameOrEmail() : '';
                 },
                 'datetime' => function () {
-                    return $this->model()->modified(option('bnomei.recently-modified.format'));
+                    return option('bnomei.recently-modified.format')($this->model()->modified());
                 },
             ],
         ],
@@ -192,20 +202,12 @@ App::plugin('bnomei/recently-modified', [
                     $id = explode('?', ltrim(str_replace(['/pages/', '/_drafts/', '+', ' '], ['/', '/', '/', '/'], $id), '/'))[0];
                     $kirby = App::instance(null, true);
 
-                    $handler = $kirby->option('date.handler') ?? 'date';
-                    $formats = [
-                        'date' => 'Y/m/d H:i:s',
-                        'intl' => 'yyyy/MM/dd HH:mm:ss', // https://unicode-org.github.io/icu/userguide/format_parse/datetime/#datetime-format-syntax
-                        'strftime' => '%Y/%m/%d %H:%M:%S'
-                    ];
-                    $format = $kirby->option('bnomei.recently-modified.format') ?? $formats[$handler] ?? $formats['date'];
-
                     if ($id === 'site') {
                         $user = site()->findRecentlyModifiedByUser();
                         $username = $user ? (string)$user->nameOrEmail() : '';
                         return [
                             'auser' => $username,
-                            'datetime' => Str::date(site()->modifiedTimestamp(), $format, $handler),
+                            'datetime' => option('bnomei.recently-modified.format')(site()->modifiedTimestamp()),
                         ];
                     }
                     if ($page = $kirby->page($id)) {
@@ -213,7 +215,7 @@ App::plugin('bnomei/recently-modified', [
                         $username = $user ? (string)$user->nameOrEmail() : '';
                         return [
                             'auser' => $username,
-                            'datetime' => $page->modified($format, $handler),
+                            'datetime' => option('bnomei.recently-modified.format')($page->modified()),
                         ];
                     }
                     return \Kirby\Http\Response::json([], 404);

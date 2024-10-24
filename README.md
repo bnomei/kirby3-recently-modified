@@ -113,7 +113,7 @@ return [
 | link                      | `function($page){...}` | callback to return the link             |
 | text                      | `function($page){...}` | callback to return the text             |
 | info                      | `function($page){...}` | callback to return the info             |
-| format                    | `Y/m/d H:i:s`          | date format string                      |
+| format                    | `fn($datetime){...}`   | custom date format callback             |
 | hooks                     | `true`                 | use hooks to track users modified pages |
 | limit                     | `7`                    | limit list and cache items              |
 | expire                    | `1`                    | cache will expire n-minutes             |
