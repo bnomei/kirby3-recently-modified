@@ -6,20 +6,6 @@
 
 Kirby Plugin to view recently modified pages by current User
 
-## Commercial Usage
-
-> <br>
-> <b>Support open source!</b><br><br>
-> This plugin is free but if you use it in a commercial project please consider to sponsor me or make a donation.<br>
-> If my work helped you to make some cash it seems fair to me that I might get a little reward as well, right?<br><br>
-> Be kind. Share a little. Thanks.<br><br>
-> &dash; Bruno<br>
-> &nbsp; 
-
-| M | O | N | E | Y |
-|---|----|---|---|---|
-| [Github sponsor](https://github.com/sponsors/bnomei) | [Patreon](https://patreon.com/bnomei) | [Buy Me a Coffee](https://buymeacoff.ee/bnomei) | [Paypal dontation](https://www.paypal.me/bnomei/15) | [Hire me](mailto:b@bnomei.com?subject=Kirby) |
-
 ## Installation
 
 - unzip [master.zip](https://github.com/bnomei/kirby3-recently-modified/archive/master.zip) as folder `site/plugins/kirby3-recently-modified` or
