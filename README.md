@@ -1,6 +1,8 @@
 # Kirby Recently Modified
 
-![Release](https://flat.badgen.net/packagist/v/bnomei/kirby3-recently-modified?color=ae81ff)
+![Release](https://flat.badgen.net/packagist/v/bnomei/kirby3-recently-modified?color=ae81ff&icon=github&label)
+[![Discord](https://flat.badgen.net/badge/discord/bnomei?color=7289da&icon=discord&label)](https://discordapp.com/users/bnomei)
+[![Buymecoffee](https://flat.badgen.net/badge/icon/donate?icon=buymeacoffee&color=FF813F&label)](https://www.buymeacoffee.com/bnomei)
 
 Kirby Plugin to view recently modified pages by current User
 
@@ -42,7 +44,8 @@ fields:
     # interval: 60
 ```
 
-> ⚠️ This plugin has by default a 1 minute cache.
+> [!WARNING]
+> This plugin has, by default, a 1 minute cache.
 
 ### Query for the Section (not Field)
 
@@ -53,7 +56,7 @@ The plugins section comes with a default query that shows the most recent change
 site.index(true).sortBy('modified', 'desc').onlyModifiedByUser
 ```
 
-> `onlyModifiedByUser` is a pagesmethod added by this plugin that filters the pages collection to only those pages that where modified by the currently logged in user. The plugin uses hooks to track what pages each user did edit.
+> `onlyModifiedByUser` is a PagesMethod added by this plugin that filters the page collection to only those pages that were modified by the currently logged-in user. The plugin uses hooks to track what pages each user did edit.
 
 **Example 1**
 ```yaml
@@ -82,7 +85,7 @@ return [
 ];
 ```
 
-> TIP: You could use the `query` property, `info` and `limit` setting to show any list of pages you want. Just like simplified version of the pagetable plugin.
+> TIP: You could use the `query` property, `info` and `limit` settings to show any list of pages you want, just like a simplified version of the page table plugin.
 
 ## Known Limitations
 
