@@ -48,7 +48,7 @@ App::plugin('bnomei/recently-modified', [
         'recentlymodified' => [
             'props' => [
                 'headline' => function (string $headline = 'Recently Modified') {
-                    return $headline;
+                    return t($headline);
                 },
                 'query' => function (?string $query = null) {
                     $query = $query ?? option('bnomei.recently-modified.query');
