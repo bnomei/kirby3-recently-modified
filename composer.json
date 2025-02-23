@@ -3,7 +3,7 @@
   "description": "Kirby Section to display recently modified content pages",
   "license": "MIT",
   "type": "kirby-plugin",
-  "version": "4.3.0",
+  "version": "5.0.0",
   "authors": [
     {
       "name": "Bruno Meilick",
@@ -32,6 +32,9 @@
     "allow-plugins": {
       "getkirby/composer-installer": true
     }
+  },
+  "conflict": {
+    "getkirby/cms": "<5.0.0"
   },
   "scripts": {
     "fix": "php-cs-fixer fix",

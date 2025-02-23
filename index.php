@@ -88,7 +88,10 @@ App::plugin('bnomei/recently-modified', [
             return pages($keys ?? []);
         },
         'modifiedTimestamp' => function () {
-            return filemtime(site()->storage()->contentFiles(site()->storage()->defaultVersion())[0]);
+            $t = filemtime(site()->root().
+                (kirby()->multilang()?'/site.'.kirby()->defaultLanguage()->code().'.txt':'/site.txt')
+            );
+            return $t ?: time();
         },
         'trackModifiedByUser' => function (bool $add = true): bool {
             if (!kirby()->user() || option('bnomei.recently-modified.hooks') !== true) {
