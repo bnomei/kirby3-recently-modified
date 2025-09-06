@@ -87,6 +87,35 @@ return [
 
 > TIP: You could use the `query` property, `info` and `limit` settings to show any list of pages you want, just like a simplified version of the page table plugin.
 
+## Adjusting the Date formats
+
+You can adjust the date formats based on the `date.handler` option. The default is `date`. The plugin `bnomei.recently-modified.format` is a callback that takes the `$datetime` string to format and ideally provides a format for all possible date handlers, returning the formatted string.
+
+**site/config/config.php**
+```php
+<?php
+
+return [
+    // ... other values
+
+    'date'  => [
+        'handler' => 'date', // <!-- you could adjust the date handler here
+    ],
+
+    'bnomei.recently-modified.format' => function($datetime): string {
+        $handler = kirby()->option('date.handler') ?? 'date';
+        $formats = [
+            'date' => 'Y/m/d H:i:s',          // <!-- the formats here
+            'intl' => 'dd. MMMM yyyy, HH:mm', // <!-- and here
+            'strftime' => '%Y/%m/%d %H:%M:%S' // <!-- or here
+        ];
+        $format = $formats[$handler] ?? $formats['date'];
+
+        return Str::date($datetime, $format, $handler);
+    },
+];
+```
+
 ## Known Limitations
 
 - You can not set multiple `text`/`link`/`info` settings. All instances of the `recentlymodified` section share the same.

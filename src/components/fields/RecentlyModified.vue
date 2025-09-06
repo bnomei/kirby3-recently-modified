@@ -40,7 +40,7 @@ export default {
   },
   computed: {
     hasChanges() {
-      return this.$store.getters["content/hasChanges"]();
+      return Object.keys(this.$panel.content.diff()).length > 0;
     },
     dynText() {
       return this.auser + ', ' + this.datetime;
@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     syncContent() {
-      let contentId = this.$store.getters["content/id"]();
+      let contentId = this.$panel.view.props.model.id;
       this.$api.get('recentlymodified/field', {
         id: contentId.split('?')[0],
       })
