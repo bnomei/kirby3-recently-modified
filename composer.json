@@ -3,7 +3,7 @@
   "description": "Kirby Section to display recently modified content pages",
   "license": "MIT",
   "type": "kirby-plugin",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "authors": [
     {
       "name": "Bruno Meilick",
@@ -37,12 +37,6 @@
     "getkirby/cms": "<5.0.0"
   },
   "scripts": {
-    "fix": "php-cs-fixer fix",
-    "test": [
-      "mkdir -p tests/logs",
-      "@putenv XDEBUG_MODE=coverage",
-      "phpunit --configuration ./phpunit.xml"
-    ],
     "dist": [
       "composer install --no-dev --optimize-autoloader",
       "git rm -rf --cached .; git add .;"

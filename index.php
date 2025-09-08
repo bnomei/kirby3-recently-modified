@@ -47,10 +47,13 @@ App::plugin('bnomei/recently-modified', [
     'sections' => [
         'recentlymodified' => [
             'props' => [
-                'headline' => function (string $headline = 'Recently Modified') {
-                    return t($headline);
+                'label' => function (?string $text = null): ?string {
+                    return $text ? t($text, $text) : null;
                 },
-                'query' => function (?string $query = null) {
+                'headline' => function (?string $text = null): ?string {
+                    return $text ? t($text, $text) : null;
+                },
+                'query' => function (?string $query = null): array {
                     $query = $query ?? option('bnomei.recently-modified.query');
                     $parentId = is_a($this->model(), \Kirby\Cms\Page::class) ? $this->model()->id() : '';
                     $pages = site()->recentlyModified($query, $parentId);
