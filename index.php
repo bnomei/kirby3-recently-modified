@@ -121,7 +121,7 @@ App::plugin('bnomei/recently-modified', [
             }
             $cacheKey = kirby()->user()->id();
 
-            $listKey = $this->id();
+            $listKey = (string) ($this->id() ?? 'site');
             $list = kirby()->cache('bnomei.recently-modified')->get($cacheKey, []);
             if ($add) {
                 $list[$listKey] = $this->modifiedTimestamp();
@@ -158,7 +158,11 @@ App::plugin('bnomei/recently-modified', [
             }
             $cacheKey = kirby()->user()->id();
 
-            $listKey = $this->id();
+            $listKey = (string) ($this->id() ?? '');
+            if ($listKey === '') {
+                return false;
+            }
+
             $list = kirby()->cache('bnomei.recently-modified')->get($cacheKey, []);
             if ($add) {
                 $list[$listKey] = $this->modified();
@@ -174,7 +178,11 @@ App::plugin('bnomei/recently-modified', [
         'findRecentlyModifiedByUser' => function (): ?\Kirby\Cms\User {
             $modifier = null;
             $modified = null;
-            $id = $this->id();
+            $id = (string) ($this->id() ?? '');
+            if ($id === '') {
+                return null;
+            }
+
             foreach (kirby()->users() as $user) {
                 $list = kirby()->cache('bnomei.recently-modified')->get($user->id(), []);
                 if (array_key_exists($id, $list)) {
@@ -194,7 +202,8 @@ App::plugin('bnomei/recently-modified', [
             $cacheKey = $user->id();
             $list = kirby()->cache('bnomei.recently-modified')->get($cacheKey, []);
             return $this->filterBy(function ($page) use ($list) {
-                return array_key_exists($page->id(), $list);
+                $pageId = (string) ($page->id() ?? '');
+                return $pageId !== '' && array_key_exists($pageId, $list);
             });
         },
     ],
