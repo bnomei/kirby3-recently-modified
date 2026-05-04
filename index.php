@@ -71,8 +71,10 @@ App::plugin('bnomei/recently-modified', [
     'siteMethods' => [
         'recentlyModified' => function (string $query, string $parentId = '') {
             $user = kirby()->user();
-            $userId = (string) ($user?->id() ?? '');
-            $cacheKey = md5($userId . '|' . $parentId . '|' . $query);
+            // Queries using the current user need isolated cache entries; other queries can share one.
+            $userScopedQuery = str_contains($query, 'onlyModifiedByUser') || preg_match('/\buser\b/', $query) === 1;
+            $userScope = $userScopedQuery ? (string) ($user?->id() ?? '') : '';
+            $cacheKey = md5($userScope . '|' . $parentId . '|' . $query);
             $keys = kirby()->cache('bnomei.recently-modified')->get($cacheKey);
             if (!$keys) {
                 $page = !empty($parentId) ? page($parentId) : null;
