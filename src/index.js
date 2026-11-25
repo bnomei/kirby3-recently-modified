@@ -1,11 +1,9 @@
 import RecentlyModifiedField from "./components/fields/RecentlyModified.vue";
-import RecentlyModifiedSection from "./components/sections/RecentlyModified.vue";
+import RecentlyModifiedList from "./components/fields/RecentlyModifiedList.vue";
 
 panel.plugin("bnomei/recently-modified", {
   fields: {
     recentlymodified: RecentlyModifiedField,
-  },
-  sections: {
-    recentlymodified: RecentlyModifiedSection
+    recentlymodifiedlist: RecentlyModifiedList,
   },
 });

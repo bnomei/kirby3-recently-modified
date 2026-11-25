@@ -39,3 +39,12 @@ coverage.xml
 /node_modules/
 
 *.sqlite
+/index.dev.js
+/.amp/portals/
+/.amp/in/
+/tests/vendor/
+/tests/content/
+/tests/.password
+/tests/site/plugins/
+/tests/public/media/
+/tests/site/.license*

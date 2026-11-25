@@ -1,0 +1,9 @@
+services:
+  panel:
+    cwd: tests
+    command: php -S "0.0.0.0:$PORT" -t public kirby/router.php
+    port: 8765
+    health: /panel/login
+    portal:
+      url: /panel/site
+      title: Kirby 6 test Panel

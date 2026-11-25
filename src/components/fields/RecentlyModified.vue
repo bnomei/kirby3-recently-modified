@@ -1,77 +1,79 @@
 <template>
-  <k-field class="k-recentlymodified-field"
-           :help="help"
-           :label="label"
-           :when="when">
-    <k-box :theme="dynTheme" name="textfield" :text="dynText" class="recentlymodified-text"/>
+  <k-field :name="name" :type="type" :label="label" :help="help" :input="false">
+    <k-box :theme="boxTheme" :text="boxText" />
   </k-field>
 </template>
 
 <script>
 export default {
+  inheritAttrs: false,
   props: {
-    help: String,
+    modifier: Object,
+    endpoints: Object,
+    help: [String, Object],
+    interval: Number,
     label: String,
-    when: String,
-    theme: {type: String, default: 'info'},
-    loading: {type: Boolean, default: false},
-    interval: {type: Number, default: 0},
+    name: String,
+    theme: String,
+    type: String,
   },
   data() {
-    return {
-      auser: undefined,
-      datetime: undefined,
-      hasUserChange: false,
-    }
-  },
-  created() {
-    this.syncContent()
-    if (this.interval > 0) {
-      setInterval(this.syncContent, this.interval * 1000)
-    }
-  },
-  watch: {
-    hasChanges() {
-      // post save or on revert
-      if (!this.hasChanges) {
-        this.syncContent()
-      }
-    }
+    return { edit: null, changedEditor: false, error: null, request: 0, timer: null };
   },
   computed: {
     hasChanges() {
-      return Object.keys(this.$panel.content.diff()).length > 0;
+      return this.$panel.content.hasDiff();
     },
-    dynText() {
-      return this.auser + ', ' + this.datetime;
+    boxTheme() {
+      if (this.error || this.changedEditor) return 'negative';
+      return this.hasChanges ? 'notice' : this.theme;
     },
-    dynTheme() {
-      if (this.hasUserChange) return 'negative';
-      return this.hasChanges || this.loading ? 'notice' : this.theme;
+    boxText() {
+      if (this.error) return this.error;
+      return [this.edit.auser, this.edit.datetime].filter(Boolean).join(', ');
     },
   },
+  watch: {
+    'endpoints.field': {
+      immediate: true,
+      handler() {
+        this.request++;
+        clearTimeout(this.timer);
+        this.edit = this.modifier;
+        this.changedEditor = false;
+        this.error = null;
+        this.poll();
+      },
+    },
+    hasChanges(changed) {
+      if (!changed) this.refresh();
+    },
+  },
+  beforeUnmount() {
+    this.request++;
+    clearTimeout(this.timer);
+  },
   methods: {
-    syncContent() {
-      let contentId = this.$panel.view.props.model.id;
-      this.$api.get('recentlymodified/field', {
-        id: contentId.split('?')[0],
-      })
-          .then(response => {
-            if (this.auser !== undefined && this.auser !== response.auser) {
-              this.hasUserChange = true
-            }
-            this.auser = response.auser
-            this.datetime = response.datetime
-            this.loading = false
-          })
-          .catch(error => {
-            this.loading = false
-          })
-    }
+    poll() {
+      if (this.interval > 0) this.timer = setTimeout(this.refresh, this.interval * 1000);
+    },
+    async refresh() {
+      const request = ++this.request;
+      clearTimeout(this.timer);
+      try {
+        const edit = await this.$api.get(this.endpoints.field);
+        if (request !== this.request) return;
+        if (this.edit.auser !== edit.auser) {
+          this.changedEditor = edit.auser !== this.$panel.user.username;
+        }
+        this.edit = edit;
+        this.error = null;
+      } catch (error) {
+        if (request === this.request) this.error = error.message;
+      } finally {
+        if (request === this.request) this.poll();
+      }
+    },
   },
 };
 </script>
-
-<style>
-
-</style>

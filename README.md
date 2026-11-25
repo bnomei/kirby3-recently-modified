@@ -1,10 +1,11 @@
 # Kirby Recently Modified
 
+[![Kirby 6](https://flat.badgen.net/badge/Kirby/6?color=ECC748)](https://getkirby.com)
 ![Release](https://flat.badgen.net/packagist/v/bnomei/kirby3-recently-modified?color=ae81ff&icon=github&label)
 [![Discord](https://flat.badgen.net/badge/discord/bnomei?color=7289da&icon=discord&label)](https://discordapp.com/users/bnomei)
 [![Buymecoffee](https://flat.badgen.net/badge/icon/donate?icon=buymeacoffee&color=FF813F&label)](https://www.buymeacoffee.com/bnomei)
 
-Kirby Plugin to view recently modified pages by current User
+Kirby 6 Panel fields that list pages edited by the current user and show who last edited a page or the site. Requires PHP 8.3 or newer supported by Kirby.
 
 ## Installation
 
@@ -14,26 +15,28 @@ Kirby Plugin to view recently modified pages by current User
 
 ## Screenshot
 
-### Section
+### Page list (Kirby 5 screenshot)
 ![recently-modified](https://raw.githubusercontent.com/bnomei/kirby3-recently-modified/master/screenshot.png)
 
-### Field
+### Last editor (Kirby 5 screenshot)
 ![recently-modified](https://raw.githubusercontent.com/bnomei/kirby3-recently-modified/master/screenshot.gif)
 
 ## Usage
 
-Add the section to your site or page blueprint to display a list of the most recently modified pages by the currently logged in user. The sections is not able to list the site itself since the section depends on a collection of pages for the query.
+**Upgrading from Kirby 5:** Kirby 6 does not load custom sections. Move each `recentlymodified` **section** into `fields`, change its type to `recentlymodifiedlist`, and use `label` for its heading. Existing `recentlymodified` **fields** keep their type. Use plugin 5.x for Kirby 5.
+
+Add a list to a site or page blueprint to show the current user's most recently edited pages, including drafts. The list contains pages only.
 
 **site/blueprints/site.yml**
 ```yaml
-sections:
+fields:
   listPagesModifiedByUser:
-    type: recentlymodified
-    headline: Your Recently Modified Pages
+    type: recentlymodifiedlist
+    label: Your Recently Modified Pages
     # query
 ```
 
-Optionally you can add the field to the site or any page blueprint to show the time and user that modified given content most recently. In contrast to the section the field is able to show most recent modified information for the site (`content/site.txt`).
+Add the modifier field to a site or page blueprint to show its last edit time and editor. Set `interval` in seconds to check for another editor's changes while the view is open. Without it the field still refreshes after saving or discarding changes.
 
 **site/blueprints/pages/default.yml**
 ```yaml
@@ -47,9 +50,9 @@ fields:
 > [!WARNING]
 > This plugin has, by default, a 1 minute cache.
 
-### Query for the Section (not Field)
+### Query for the page list
 
-The plugins section comes with a default query that shows the most recent changes made by the currently logged in user. But you can define any other query you like.
+The default query shows the current user's edits. Supply a custom query that returns a pages collection to display a different list.
 
 **Default Query**
 ```
@@ -60,19 +63,19 @@ site.index(true).sortBy('modified', 'desc').onlyModifiedByUser
 
 **Example 1**
 ```yaml
-sections:
+fields:
   recentarticles:
-    type: recentlymodified
-    headline: Recently Modified Articles
+    type: recentlymodifiedlist
+    label: Recently Modified Articles
     query: site.find('articles').children.listed.sortBy('modified', 'desc')
 ```
 
 **Example 2**
 ```yaml
-sections:
+fields:
   mycollection:
-    type: recentlymodified
-    headline: My Collection
+    type: recentlymodifiedlist
+    label: My Collection
     query: kirby.collection('my-collection')
 ```
 ```php
@@ -118,7 +121,7 @@ return [
 
 ## Known Limitations
 
-- You can not set multiple `text`/`link`/`info` settings. All instances of the `recentlymodified` section share the same.
+- All `recentlymodifiedlist` fields share the `text`, `link` and `info` callbacks.
 - The `limit` setting is always applied. If you want some of your instances to have a smaller number of items then call `limit` inside your custom query.
 
 ## Settings
@@ -133,6 +136,12 @@ return [
 | hooks                     | `true`                 | use hooks to track users modified pages |
 | limit                     | `7`                    | limit list and cache items              |
 | expire                    | `1`                    | cache will expire n-minutes             |
+
+## Test the Panel in an orb
+
+From the repository root, run `.agents/setup`, `npm run build`, `amp orb services ensure`, then `tests/panel.sh`. Setup installs the locked Kirby release under `tests/`; to test a newer stable 6.x, run `composer update -d tests` first. The browser check starts with an empty plugin history in the disposable fixture, edits content as two users, and allows one minute for the default list cache to expire.
+
+For manual testing, open the **Kirby 6 test Panel** portal and sign in with `robin@example.test` or `sam@example.test`. The generated test password is in `tests/.password` in the orb, outside the web root.
 
 ## Disclaimer
 

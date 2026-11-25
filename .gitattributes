@@ -1,5 +1,7 @@
 /docs               export-ignore
 /tests              export-ignore
+/.agents            export-ignore
+/.amp               export-ignore
 /.github            export-ignore
 /.gitattributes     export-ignore
 /.coveralls.yml     export-ignore

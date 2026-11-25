@@ -1,0 +1,4 @@
+{
+  "require": { "getkirby/cms": "^6.0" },
+  "config": { "allow-plugins": { "getkirby/composer-installer": true } }
+}

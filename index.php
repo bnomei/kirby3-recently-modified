@@ -1,12 +1,16 @@
 <?php
 
+use Bnomei\RecentlyModified\RecentlyModifiedField;
+use Bnomei\RecentlyModified\RecentlyModifiedListField;
 use Kirby\Cms\App;
-use Kirby\Cms\Find;
+use Kirby\Cms\Languages;
 use Kirby\Cms\Page;
 use Kirby\Cms\Pages;
-use Kirby\Exception\NotFoundException;
-use Kirby\Http\Response;
+use Kirby\Query\Query;
 use Kirby\Toolkit\Str;
+
+require_once __DIR__ . '/fields/RecentlyModifiedField.php';
+require_once __DIR__ . '/fields/RecentlyModifiedListField.php';
 
 App::plugin('bnomei/recently-modified', [
     'options' => [
@@ -26,7 +30,7 @@ App::plugin('bnomei/recently-modified', [
             return option('bnomei.recently-modified.format')($page->modified());
         },
         'link' => function (\Kirby\Cms\Page $page) {
-            return $page->panel()->url();
+            return $page->panel()->url(true);
         },
         'text' => function (\Kirby\Cms\Page $page) {
             return $page->title()->value();
@@ -37,104 +41,56 @@ App::plugin('bnomei/recently-modified', [
         'cache' => true,
     ],
     'fields' => [
-        'recentlymodified' => [
-            'props' => [
-                'auser' => function () {
-                    $user = $this->model()->findRecentlyModifiedByUser();
-                    return $user ? (string) $user->nameOrEmail() : '';
-                },
-                'datetime' => function () {
-                    return option('bnomei.recently-modified.format')($this->model()->modified());
-                },
-            ],
-        ],
-    ],
-    'sections' => [
-        'recentlymodified' => [
-            'props' => [
-                'label' => function (?string $text = null): ?string {
-                    return $text ? t($text, $text) : null;
-                },
-                'headline' => function (?string $text = null): ?string {
-                    return $text ? t($text, $text) : null;
-                },
-                'query' => function (?string $query = null): array {
-                    $query = $query ?? option('bnomei.recently-modified.query');
-                    $parentId = is_a($this->model(), \Kirby\Cms\Page::class)
-                        ? (string) ($this->model()->id() ?? '')
-                        : '';
-                    $pages = site()->recentlyModified($query, $parentId);
-                    return array_values($pages->toArray(function ($page) {
-                        return [
-                            'link' => option('bnomei.recently-modified.link')($page),
-                            'text' => option('bnomei.recently-modified.text')($page),
-                            'info' => option('bnomei.recently-modified.info')($page),
-                        ];
-                    }));
-                },
-            ],
-        ],
+        'recentlymodified' => RecentlyModifiedField::class,
+        'recentlymodifiedlist' => RecentlyModifiedListField::class,
     ],
     'siteMethods' => [
         'recentlyModified' => function (string $query, string $parentId = ''): Pages {
-            $user = kirby()->user();
-            // Section results are permission-filtered, so cache entries must be user-scoped.
-            $userScope = (string) ($user?->id() ?? '');
-            $cacheKey = md5('permissions|' . $userScope . '|' . $parentId . '|' . $query);
-            $keys = kirby()->cache('bnomei.recently-modified')->get($cacheKey);
+            $kirby = $this->kirby();
+            $user = $kirby->user();
+            $cache = $kirby->cache('bnomei.recently-modified');
+            $cacheKey = md5(serialize([$user?->id(), $kirby->languageCode(), $parentId, $query]));
+            $keys = $cache->get($cacheKey);
 
             if (is_array($keys) === false) {
-                $page = !empty($parentId) ? page($parentId) : null;
-                $collection = \Kirby\Query\Query::factory($query)->resolve([
-                    'kirby' => kirby(),
-                    'site' => kirby()->site(),
+                $page = $parentId !== '' ? $kirby->page($parentId) : null;
+                $collection = Query::factory($query)->resolve([
+                    'kirby' => $kirby,
+                    'site' => $this,
                     'page' => $page,
-                    'pages' => kirby()->site()->pages(),
+                    'model' => $page ?? $this,
+                    'pages' => $this->pages(),
                     'user' => $user,
                 ]);
-                $keys = [];
-
-                if ($collection instanceof Pages) {
-                    if ($user !== null) {
-                        $collection = $collection->filterBy(
-                            fn($page) => $page instanceof Page && $page->isListable() === true,
-                        );
-                    }
-
-                    $keys = $collection
-                        ->limit(intval(option('bnomei.recently-modified.limit')))
-                        ->toArray(fn($page) => $page->id());
+                $pages = $collection instanceof Pages ? $collection : new Pages();
+                if ($user !== null) {
+                    $pages = $pages->filter(fn (Page $page) => $page->isListable());
                 }
-
-                kirby()->cache('bnomei.recently-modified')->set(
+                $pages = $pages->limit((int) option('bnomei.recently-modified.limit'));
+                $cache->set(
                     $cacheKey,
-                    $keys,
-                    intval(option('bnomei.recently-modified.expire')),
+                    $pages->values(fn (Page $page) => $page->id()),
+                    (int) option('bnomei.recently-modified.expire'),
                 );
+                return $pages;
             }
 
-            $pages = pages($keys);
-
-            return $user === null
-                ? $pages
-                : $pages->filterBy(fn($page) => $page instanceof Page && $page->isListable() === true);
-        },
-        'modifiedTimestamp' => function () {
-            $root = site()->root();
-            $extension = kirby()->contentExtension();
-            $files = [];
-
-            if (kirby()->multilang()) {
-                foreach (kirby()->languages() as $language) {
-                    $files[] = $root . '/site.' . $language->code() . '.' . $extension;
+            // Unlike pages($keys), App::page() resolves draft and nested draft IDs.
+            $pages = new Pages();
+            foreach ($keys as $id) {
+                $page = $kirby->page($id);
+                if ($page !== null && ($user === null || $page->isListable())) {
+                    $pages->add($page);
                 }
-            } else {
-                $files[] = $root . '/site.' . $extension;
             }
-
+            return $pages;
+        },
+        'modifiedTimestamp' => function (): int {
+            // Site::modified() tracks the entire content tree, not just site content.
+            $version = $this->version('latest');
             $timestamps = [];
-            foreach ($files as $file) {
-                if (is_file($file) && ($modified = filemtime($file)) !== false) {
+            foreach (Languages::ensure() as $language) {
+                if (($modified = $version->modified($language)) !== null) {
                     $timestamps[] = $modified;
                 }
             }
@@ -153,7 +109,7 @@ App::plugin('bnomei/recently-modified', [
                 unset($list['']);
             }
             if ($add) {
-                $list[$listKey] = $this->modifiedTimestamp();
+                $list[$listKey] = microtime(true);
             } elseif (array_key_exists($listKey, $list)) {
                 unset($list[$listKey]);
             }
@@ -201,7 +157,7 @@ App::plugin('bnomei/recently-modified', [
 
             $list = kirby()->cache('bnomei.recently-modified')->get($cacheKey, []);
             if ($add) {
-                $list[$listKey] = $this->modified();
+                $list[$listKey] = microtime(true);
             } elseif (array_key_exists($listKey, $list)) {
                 unset($list[$listKey]);
             }
@@ -266,50 +222,5 @@ App::plugin('bnomei/recently-modified', [
         'site.update:after' => function (\Kirby\Cms\Site $newSite, \Kirby\Cms\Site $oldSite) {
             $newSite->trackModifiedByUser();
         },
-    ],
-    'api' => [
-        'routes' => [
-            [
-                'pattern' => 'recentlymodified/field',
-                'action' => function () {
-                    $id = urldecode(get('id'));
-                    $id = explode('?', ltrim(
-                        str_replace(['/pages/', '/_drafts/', '+', ' '], ['/', '/', '/', '/'], $id),
-                        '/',
-                    ))[0];
-                    if ($id === 'site') {
-                        try {
-                            $site = Find::site();
-                        } catch (NotFoundException) {
-                            return Response::json([], 404);
-                        }
-
-                        $user = $site->findRecentlyModifiedByUser();
-                        $username = $user ? (string) $user->nameOrEmail() : '';
-                        return [
-                            'auser' => $username,
-                            'datetime' => option('bnomei.recently-modified.format')($site->modifiedTimestamp()),
-                        ];
-                    }
-
-                    try {
-                        $page = Find::page($id);
-                    } catch (NotFoundException) {
-                        return Response::json([], 404);
-                    }
-
-                    if ($page === null || $page->isAccessible() !== true) {
-                        return Response::json([], 404);
-                    }
-
-                    $user = $page->findRecentlyModifiedByUser();
-                    $username = $user ? (string) $user->nameOrEmail() : '';
-                    return [
-                        'auser' => $username,
-                        'datetime' => option('bnomei.recently-modified.format')($page->modified()),
-                    ];
-                },
-            ],
-        ],
     ],
 ]);

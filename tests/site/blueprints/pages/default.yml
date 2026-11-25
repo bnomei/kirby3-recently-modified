@@ -1,0 +1,12 @@
+title: Article
+fields:
+  note:
+    label: Editorial note
+    type: text
+  modifier:
+    label: Last page edit
+    type: recentlymodified
+  related:
+    label: Other articles
+    type: recentlymodifiedlist
+    query: page.siblings(false).listed

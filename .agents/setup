@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v composer >/dev/null || ! php -r 'exit(PHP_VERSION_ID >= 80300 && extension_loaded("curl") && extension_loaded("gd") && extension_loaded("intl") && extension_loaded("mbstring") && extension_loaded("dom") ? 0 : 1);'; then
+  sudo apt-get update -qq
+  sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y composer php-cli php-curl php-gd php-intl php-mbstring php-xml php-zip
+fi
+
+npm ci --no-fund --no-audit
+composer install -d tests --no-interaction --prefer-dist
+mkdir -p tests/content tests/site/plugins
+ln -sfnT "$PWD" tests/site/plugins/recently-modified
+if [[ ! -s tests/.password ]]; then
+  (umask 077; openssl rand -hex 24 > tests/.password)
+fi
+php tests/seed.php

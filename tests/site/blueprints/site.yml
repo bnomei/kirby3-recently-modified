@@ -1,0 +1,16 @@
+title: Site
+fields:
+  note:
+    label: Site note
+    type: text
+  modifier:
+    label: Last site edit
+    type: recentlymodified
+    interval: 2
+  recent:
+    label: Your recently modified pages
+    type: recentlymodifiedlist
+  catalog:
+    label: All listed pages
+    type: recentlymodifiedlist
+    query: site.children.listed.sortBy('title')
